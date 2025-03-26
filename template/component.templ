@@ -1,0 +1,46 @@
+package template
+
+templ Button(id, name string) {
+    <button class={templ.KV(button(),true)} id={id} hx-post={"/"+id}>{ name }</button>
+}
+
+templ ComponentTitle(name string) {
+    <div class={templ.KV(componentTitle(),true)}>{ name }</div>
+}
+
+templ MsgInput(id string) {
+    <div name="msg-input">
+        @ComponentTitle("Enter message to hide it in the image")
+        <textarea id={id}
+            rows="5"
+            cols="50"
+            placeholder="Message here"
+            hx-post="/submit-input"
+            hx-trigger="input blur"
+            hx-target="#result"></textarea>
+    </div>
+}
+
+templ ImageUpload() {
+    <div>
+        <h1>Upload an Image</h1>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <input type="file" accept="image/png, image/jpeg" onchange="previewImage(event)" id="choose-file" required>
+            <div id="preview">
+                <img id="previewImg" src="" alt="Image Preview">
+            </div>
+            <button type="submit" id="encode" class={templ.KV(button(),true)} hx-post="/encode" hx-target="#response" hx-swap="innerHTML">Encode</button>
+            <button type="submit" id="decode" class={templ.KV(button(),true)} hx-post="/decode" hx-target="#response" hx-swap="innerHTML">Decode</button>
+            <div name="msg-input">
+                @ComponentTitle("Enter message to hide it in the image")
+                <textarea id="msg"
+                    rows="5"
+                    cols="50"
+                    placeholder="Message here"
+                    hx-post="/submit-input"
+                    hx-trigger="input blur"
+                    hx-target="#result"></textarea>
+            </div>
+        </form>
+    </div>
+}

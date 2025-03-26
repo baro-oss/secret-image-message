@@ -1,0 +1,77 @@
+package template
+
+templ Page() {
+    <style>
+        #preview {
+            display: none;
+            margin: 20px 0;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+        .flat-upload-button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+        input[type="file"] {
+            display: none; /* Hide the default file input */
+        }
+    </style>
+    <h1>Upload an Image</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <label for="fileUpload" class="flat-upload-button">Upload Image</label>
+        <input type="file" id="fileUpload" accept="image/png, image/jpeg" onchange="previewImage(event)" required>
+
+        <div id="preview">
+            <h2>Image Preview:</h2>
+            <img id="previewImg" src="" alt="Image Preview">
+        </div>
+
+        <button type="submit" id="encode" class={templ.KV(button(),true)} hx-post="/encode" hx-target="#response" hx-swap="innerHTML">Encode</button>
+        <button type="submit" id="decode" class={templ.KV(button(),true)} hx-post="/decode" hx-target="#response" hx-swap="innerHTML">Decode</button>
+    </form>
+
+    <div id="response">
+        <h1>Encoded Image</h1>
+        <img id="encodedImage" src="" alt="Encoded Image Preview">
+    </div>
+    <script>
+        document.getElementById("response").style.display = 'none';
+        function previewImage(event) {
+            const file = event.target.files[0];
+            const preview = document.getElementById('preview');
+            const previewImg = document.getElementById('previewImg');
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    previewImg.style.display = 'block';
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        document.body.addEventListener('htmx:configRequest', function(event) {
+            const headers = {
+                'Content-Type': 'multipart/form-data', // Example custom header
+            };
+
+            // Add each header to the request
+            for (const key in headers) {
+                event.detail.headers[key] = headers[key];
+            }
+        });
+    </script>
+}

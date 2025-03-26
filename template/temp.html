@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic HTMX Post URL</title>
+    <script src="https://unpkg.com/htmx.org@1.9.3"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+        }
+        #preview {
+            display: none;
+            margin: 20px 0;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+        .flat-upload-button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+        .flat-upload-button:hover {
+            background-color: #0056b3;
+        }
+        input[type="file"] {
+            display: none; /* Hide the default file input */
+        }
+    </style>
+</head>
+<body>
+
+<h1>Upload an Image</h1>
+<form id="uploadForm" hx-target="#response" enctype="multipart/form-data">
+    <label for="fileUpload" class="flat-upload-button">
+        Upload Image
+    </label>
+    <input type="file" id="fileUpload" accept="image/*" onchange="previewImage(event)" required>
+
+    <div id="preview">
+        <h2>Image Preview:</h2>
+        <img id="previewImg" src="" alt="Image Preview" style="display:none;">
+    </div>
+
+    <button type="submit" class="flat-upload-button" onclick="setPostUrl(event)">Submit</button>
+</form>
+
+<div id="response"></div>
+
+<script>
+    function previewImage(event) {
+        const file = event.target.files[0];
+        const preview = document.getElementById('preview');
+        const previewImg = document.getElementById('previewImg');
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                previewImg.style.display = 'block';
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function setPostUrl(event) {
+        event.preventDefault(); // Prevent form submission
+
+        const form = document.getElementById('uploadForm');
+        const file = document.getElementById('fileUpload').files[0];
+
+        if (file) {
+            // Dynamically set the hx-post URL based on a condition
+            const userActionCondition = true; // Replace with your condition
+            if (userActionCondition) {
+                form.setAttribute('hx-post', '/upload'); // Set URL for upload
+            } else {
+                form.setAttribute('hx-post', '/another-upload'); // Alternative URL
+            }
+
+            // Submit the form programmatically
+            htmx.ajax('POST', form.getAttribute('hx-post'), {
+                target: '#response',
+                swap: 'innerHTML',
+                values: new FormData(form)
+            });
+        }
+    }
+</script>
+
+</body>
+</html>
